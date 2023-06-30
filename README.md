@@ -41,7 +41,7 @@ Here's some code to test out some famous **portfolios**:
     from investlib.rebalance import MonthlyTimer
     from investlib.rebalance import FirstFriday
     
-    os.environ['tiingo_api_key'] = 'dd3b82b63e3dd1a4caa7c7658a2942977cef280a'
+    os.environ['tiingo_api_key'] = '<tiingo_api_key>'
     
     start = '2007-01-01'
     end = '2021-06-04'
