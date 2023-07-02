@@ -8,7 +8,7 @@ class BaseFilter:
         if check != 1:
             raise Exception('Choose one and only one conditions: gt,gte,lt,lte')
         
-        if days==None and month==None:
+        if days==None and months==None:
             raise Exception('Choose one and only one period: days, months') 
     
         self.days=days
