@@ -102,6 +102,9 @@ class Tiingo:
         return df
 
     def load(self, tickers, start=None, end=None):
+        if not os.path.exists(self.backup_path):
+            os.makedirs(self.backup_path)
+
         end = self.fix_end(end)
 
         if(start and start>end):
