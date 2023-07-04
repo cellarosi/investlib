@@ -1,5 +1,6 @@
 import calendar
 import pandas as pd
+from investlib.utils import get_interval_by_month
 
 class BaseFilter:
     def __init__(self, days=None, months=None, gt=None, gte=None, lt=None, lte=None, best=None):
@@ -19,23 +20,11 @@ class BaseFilter:
         self.lte=lte
         self.best=best
 
-    def get_interval(self, date):
-        start_month = date - pd.DateOffset(months=self.months)
-        first_day = start_month
-        if not first_day.is_month_start:
-            first_day = start_month - pd.offsets.MonthBegin()
-        
-        last_day = date - pd.DateOffset(months=1)
-        if not last_day.is_month_end:
-            last_day += pd.offsets.MonthEnd(0)
-        
-        return (first_day, last_day)
-
 class PctChange(BaseFilter):
     
     def get_filtered(self, equities, date):
         if self.months != None:
-            first_day, last_day = self.get_interval(date)
+            first_day, last_day = get_interval_by_month(date, self.months)
             filtered = (equities.loc[last_day]/equities.loc[first_day]-1).dropna()
         else:
             filtered = equities.pct_change(periods=self.days).loc[date].dropna()

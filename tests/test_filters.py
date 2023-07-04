@@ -5,23 +5,6 @@ from investlib.filters import PctChange, SharpRatio, BaseFilter
 
 
 class BaseFilterTest(unittest.TestCase):
-    def test_get_interval_middle_month_day(self):
-        f = BaseFilter(days=30, months=3, gt=0)
-        first, last = f.get_interval(pd.to_datetime('2022-05-03'))
-        self.assertEqual(first.date().__str__(), '2022-02-01')
-        self.assertEqual(last.date().__str__(), '2022-04-30')
-
-    def test_get_interval_last_month_day(self):
-        f = BaseFilter(days=30, months=3, gt=0)
-        first, last = f.get_interval(pd.to_datetime('2022-05-31'))
-        self.assertEqual(first.date().__str__(), '2022-02-01')
-        self.assertEqual(last.date().__str__(), '2022-04-30')
-
-    def test_get_interval_first_month_day(self):
-        f = BaseFilter(days=30, months=3, gt=0)
-        first, last = f.get_interval(pd.to_datetime('2022-05-01'))
-        self.assertEqual(first.date().__str__(), '2022-02-01')
-        self.assertEqual(last.date().__str__(), '2022-04-30')
 
     def test_month_or_day_mandatory(self):
         self.assertRaises(Exception, BaseFilter, **dict(gt=0))
