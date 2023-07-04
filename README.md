@@ -19,6 +19,8 @@ You can allocate percentages between the chosen ETFs using:
 	- Fixed allocation
 		- Statically
 		- Dinamically based on the number of filtered ETFs
+    - PctChangeRank
+        Allow you to make a ranking on filtered ETF and allocate money based on your preference
 
 ## Data
 The current unique data source is Tiingo. InvestLib automatically manages cash to avoid making repeated data calls. To use this feature, you need to create a free account on Tiingo and set the following environment variables:
@@ -49,22 +51,26 @@ Here's some code to test out some famous **portfolios**:
     
     # We create a strategy that rebalances the current money (invested + cash) to 60% VTI and 40% IEF
     # every month on the first Friday.
-    s = Strategy(tickers, start=start, end=end, timer=MonthlyTimer(months=1, day=FirstFriday()),allocation_class=FixedAllocation({'VTI':0.6,'IEF':0.4}))
+    s = Strategy(
+        tickers, 
+        start=start, 
+        end=end, 
+        timer=MonthlyTimer(months=1, day=FirstFriday()),
+        allocation_class=FixedAllocation({'VTI':0.6,'IEF':0.4})
+    )
     s.run()
-    # Build the final equity by summing up the value of investments per asset and the remaining cash
-    eq = s.invested.loc[:, (slice(None), 'value')].droplevel(1, axis=1).sum(axis=1) + s.cash['post_close']
-    
+   
     # Plot the results
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=s.invested.index, y=eq, name='6040', yaxis='y1'))
-    fig.add_trace(go.Scatter(x=bench.invested.index, y=bench_eq, name='VTI', yaxis='y1'))
-    fig.update_layout(
-        yaxis2=dict(
-            title='Dati 2',
-            overlaying='y',
-            side='right'
-        )
-    )
+    fig.add_trace(go.Scatter(x=s.invested.index, y=s.equity, name='6040'))
+    fig.add_trace(go.Scatter(x=bench.invested.index, y=bench_eq, name='VTI'))
+
     fig.show()
 
     
+### Futures 
+    - Add more stats
+    - Currency
+    - Tax
+    - Portfolio over Strategy
+

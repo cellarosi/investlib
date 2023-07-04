@@ -99,3 +99,5 @@ class Strategy:
                 self.invested.loc[i, (slice(None), 'value')] = self.quantity.loc[i,:].mul(history.loc[i].xs('close',  level=1)).tolist()
 
             self.cash.loc[i, 'post_close'] = self.cash.loc[i, 'pre_close']-self.invested.loc[i, (slice(None), 'current')].sum()
+        
+        self.equity = self.invested.loc[:, (slice(None), 'value')].droplevel(1, axis=1).sum(axis=1) + self.cash['post_close']
