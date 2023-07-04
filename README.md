@@ -63,7 +63,6 @@ Here's some code to test out some famous **portfolios**:
     # Plot the results
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=s.invested.index, y=s.equity, name='6040'))
-    fig.add_trace(go.Scatter(x=bench.invested.index, y=bench_eq, name='VTI'))
 
     fig.show()
 
