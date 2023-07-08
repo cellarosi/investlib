@@ -1,10 +1,7 @@
 import os
-from io import BytesIO
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-import matplotlib.pyplot as plt
-from reportlab.lib.utils import ImageReader
 import base64
+from io import BytesIO
+import matplotlib.pyplot as plt
 from weasyprint import HTML
 from jinja2 import Template
 
