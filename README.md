@@ -28,20 +28,25 @@ The current unique data source is Tiingo. InvestLib automatically manages cash t
 - **tiingo_api_key**: the API token provided by Tiingo upon subscription
 - **tiingo_backup_path**: the folder where you want to save the end-of-day CSV data for all the ETFs you need (default '/tmp/Tiingo'). 
 
-## Examples
+# Installation 
+
+I raccomand to use virtualenv:
+    
+    pip install investlib
+
+## Example
 
 Here's some code to test out some famous **portfolios**:
 
 ### 60/40 (60 stocks/40 bond)
 
     import os
-    import pandas as pd
-    import plotly.graph_objects as go
     
     from investlib.strategy import Strategy
     from investlib.rebalance import FixedAllocation
     from investlib.rebalance import MonthlyTimer
     from investlib.rebalance import FirstFriday
+    from investlib.report.draw import generate_report
     
     os.environ['tiingo_api_key'] = '<tiingo_api_key>'
     
@@ -60,15 +65,11 @@ Here's some code to test out some famous **portfolios**:
     )
     s.run()
    
-    # Plot the results
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=s.invested.index, y=s.equity, name='6040'))
-
-    fig.show()
-
+    generate_report(s, path='/tmp/6040.pdf', name='60/40')
     
 ### Futures 
     - Add more stats
+    - Add more source of data
     - Currency
     - Tax
     - Portfolio over Strategy

@@ -50,10 +50,44 @@ class Strategy:
             assets = f.get_filtered(equities[assets], date)
         return assets
 
+    def get_equity(self):
+        eq= self.invested.loc[:, (slice(None), 'value')].droplevel(1, axis=1).sum(axis=1) + self.cash['post_close']
+        eq = eq.rename('abs',inplace=True).to_frame()
+        eq['pct'] = ((1+eq['abs'].pct_change().fillna(0)).cumprod()-1)*100
+        return eq.round(2)
+
+    def get_drawdown(self):
+        eq= self.invested.loc[:, (slice(None), 'value')].droplevel(1, axis=1).sum(axis=1) + self.cash['post_close']
+        dd = eq-eq.cummax()
+        dd = dd.rename('abs',inplace=True).to_frame()
+        dd['pct'] = (eq/eq.cummax()-1)*100
+        return dd.round(2)
+
+    def get_loss_period(self):
+        dd = self.get_drawdown()['abs']
+        dd_zero = dd[dd==0].index
+        end_date = dd_zero.to_series().diff().idxmax()
+        start_locix = dd_zero.get_loc(end_date)-1
+        start_date = dd_zero[dd_zero.to_list().index(dd_zero[start_locix])]
+        loss_days = dd_zero.to_series().diff().max().days-1
+        return (start_date, end_date, loss_days)
+
+    def get_duration(self):
+        """
+            Approximate average number of days in a year, taking leap years into account
+        """
+        equity = self.get_equity()['abs']
+        return round((equity.index[-1]-equity.index[0]).days/365.25,1)
+         
+    def get_cagr(self):
+        equity = self.get_equity()['abs']
+        t = self.get_duration()
+        return round((pow(equity.iloc[-1]/equity.iloc[0],1/t)-1)*100,2)
+
     def run(self):
         history = self.load_data()
         self.init_run(history)
-        timer = MonthlyTimer(months=1, day=FirstFriday())
+        #timer = MonthlyTimer(months=1, day=FirstFriday())
         #timer.set_rebalancing_days(pd.to_datetime(self.start), pd.to_datetime(self.end))
         invest_range = history.copy()
         invest_range = invest_range.loc[self.start:self.end]
@@ -99,5 +133,3 @@ class Strategy:
                 self.invested.loc[i, (slice(None), 'value')] = self.quantity.loc[i,:].mul(history.loc[i].xs('close',  level=1)).tolist()
 
             self.cash.loc[i, 'post_close'] = self.cash.loc[i, 'pre_close']-self.invested.loc[i, (slice(None), 'current')].sum()
-        
-        self.equity = self.invested.loc[:, (slice(None), 'value')].droplevel(1, axis=1).sum(axis=1) + self.cash['post_close']

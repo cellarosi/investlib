@@ -1,0 +1,105 @@
+<html>
+<head>
+    <style>
+        @page {
+            margin: 1cm;
+        }
+        table {
+            border-collapse: collapse;
+            width: 98%;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: 5px;
+            text-align: right;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        td.loss {
+            color: red;
+        }
+        td.gain {
+            color: green;
+        }
+
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">{{title}}</h1>
+    <div>
+        <img style="width:100%;"  src="data:image/png;base64,{{ img_equity_dd }}" alt="Equity/DD Plot">
+    </div>
+    
+    
+    <div style="display:flex">
+        <div style="width:50%;">
+            <h4 style="text-align: center;">Stats</h1>
+            <table>
+                <tr>
+                    <td>Period</td>
+                    <td>{{ start.strftime("%d/%m/%Y") }}</td>
+                    <td>{{ end.strftime("%d/%m/%Y") }}</td>
+                </tr>
+                <tr>
+                    <td>Years</td>
+                    <td colspan=2>{{ duration }}</td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th>$</th>
+                    <th>%</th>
+                </tr>
+                <tr>
+                    <td>Net profit</td>
+                    <td class="{{ 'gain' if net_profit_abs > 0 else 'loss' }}">{{ net_profit_abs }}</td>
+                    <td class="{{ 'gain' if net_profit_abs > 0 else 'loss' }}">{{ equity.iloc[-1]['pct'] }}</td>
+                </tr>
+                <tr>
+                    <td>Cagr</td>
+                    <td></td>
+                    <td class="{{ 'gain' if net_profit_abs > 0 else 'loss' }}">{{ cagr }}</td>
+                </tr>
+                <tr>
+                    <th colspan=3>Drawdown</th>
+                </tr>
+                <tr>
+                    <td>Max DD</td>
+                    <td class="loss">{{ drawdown.min()['abs'] }}</td>
+                    <td class="loss">{{ drawdown.min()['pct'] }}</td>
+                </tr>
+                
+                
+            </table>
+        </div>
+        <div style="width:50%;">
+            <h4 style="text-align: center;">Periods</h1>
+            <table>
+                <tr>
+                    <th colspan="4" style="text-align: center;">Max DD period</td> 
+                </tr>
+                <tr>
+                    <th>Start</td> 
+                    <th>End</td> 
+                    <th>Days</td> 
+                    <th>Months</td> 
+                </tr>
+                <tr>
+                    <td>{{ loss_period[0].strftime("%d/%m/%Y") }} </td>
+                    <td>{{ loss_period[1].strftime("%d/%m/%Y") }} </td>
+                    <td>{{ loss_period[2] }}</td>
+                    <td>{{ (loss_period[2]/30)|round(1) }}</td>
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</body>
+</html>
