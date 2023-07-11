@@ -31,14 +31,19 @@ def generate_report(strategy, path='/tmp/report.pdf', name='Report'):
     axs[3].plot(dd.index, dd['pct'], 'tab:red')
     axs[3].set_title('DD %')
     axs[3].grid(True)
-    axs[4].plot(strategy.allocation.index, strategy.allocation)
     axs[4].set_title('Allocation %')
-    axs[4].set_ylim(-0.1,1.1)
+    axs[4].set_ylim(0,1)
     axs[4].set_xlim(strategy.allocation.index[0],strategy.allocation.index[-1])
+    cumsumalloc = strategy.allocation.cummax(axis=1)
+    bottom=0
+    for col, alloc in strategy.allocation.items():
+        axs[4].fill_between(strategy.allocation.index, bottom, bottom + strategy.allocation[col],  label=col)
+        bottom += strategy.allocation[col] 
+    axs[4].legend()
     fig.subplots_adjust(hspace=0.5)
 
     buffer = BytesIO()
-    plt.savefig(buffer, format='svg', bbox_inches='tight' )
+    plt.savefig(buffer, format='png', bbox_inches='tight' )
     plt.close()
     buffer.seek(0)
     img_equity_dd =  base64.b64encode(buffer.getbuffer()).decode("ascii")
@@ -47,6 +52,13 @@ def generate_report(strategy, path='/tmp/report.pdf', name='Report'):
     with open('{}/templates/report.html'.format(current_dir), 'r') as file:
         template_html = file.read()
     template = Template(template_html)
+
+    cagr_periods = [
+        strategy.get_cagr_periods(1),
+        strategy.get_cagr_periods(3),
+        strategy.get_cagr_periods(5),
+        strategy.get_cagr_periods(10)
+    ]
 
     data = {
         'title': name,
@@ -59,6 +71,7 @@ def generate_report(strategy, path='/tmp/report.pdf', name='Report'):
         'loss_period': strategy.get_loss_period(),
         'duration': strategy.get_duration(),
         'cagr': strategy.get_cagr(),
+        'cagr_periods': cagr_periods,
     }
     rendered_html = template.render(data)
 

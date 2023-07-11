@@ -10,6 +10,10 @@ class EveryDay:
     def is_valid(self, date):
         return True
 
+class FirstDay:
+    def is_valid(self, date):
+        return date.day==1
+
 class FridayTimer:
     def is_rebalance_day(self, date):
         return date.weekday() == 4     

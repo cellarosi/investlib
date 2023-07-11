@@ -103,14 +103,25 @@ class PctChangeRankTest(unittest.TestCase):
 
     def test_assets_notequal_cols(self):
         datadf = pd.DataFrame(columns=['tk1','tk2','tk3','tk4'], index=['2023-01-04','2023-01-05','2023-01-06', '2023-01-09', '2023-01-10'])
-        datadf['tk1'] = [12,11,12,13,16]
-        datadf['tk2'] = [12,11,13,13,16]
-        datadf['tk3'] = [12,11,15,13,16]
-        datadf['tk4'] = [12,11,9,13,16]
+        datadf['tk1'] = [12,11,12,13,16] # +0
+        datadf['tk2'] = [12,11,13,13,16] # +1
+        datadf['tk3'] = [12,11,15,13,16] # +3 scartato dal filtro
+        datadf['tk4'] = [12,11,9,13,16]  # -3
     
         rank = PctChangeRank(allocation=[0.6,0.4], days=2)
         rankdf = rank.rebalance(datadf, date='2023-01-06', assets=['tk1','tk2','tk4'])
         self.assertEqual(rankdf.values.tolist(), [0.4, 0.6,0.0,0.0])
+
+    def test_assets_equal_cols(self):
+        datadf = pd.DataFrame(columns=['tk1','tk2','tk3','tk4'], index=['2023-01-04','2023-01-05','2023-01-06', '2023-01-09', '2023-01-10'])
+        datadf['tk1'] = [12,11,12,13,16] # +0
+        datadf['tk2'] = [12,11,13,13,16] # +1
+        datadf['tk3'] = [12,11,15,13,16] # +3
+        datadf['tk4'] = [12,11,9,13,16]  # -3
+    
+        rank = PctChangeRank(allocation=[0.6,0.4], days=2)
+        rankdf = rank.rebalance(datadf, date='2023-01-06', assets=['tk1','tk2', 'tk3', 'tk4'])
+        self.assertEqual(rankdf.values.tolist(), [0.0, 0.4, 0.6,0.0])
 
     def test_nan_values(self):
         datadf = pd.DataFrame(columns=['tk1','tk2','tk3','tk4'], index=['2023-01-04','2023-01-05','2023-01-06', '2023-01-09', '2023-01-10'])

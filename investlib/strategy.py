@@ -78,7 +78,20 @@ class Strategy:
         """
         equity = self.get_equity()['abs']
         return round((equity.index[-1]-equity.index[0]).days/365.25,1)
-         
+
+    def get_cagr_periods(self, years):
+        """
+            Best and worst cagr per 1/3/5/10 years
+
+        """
+        days = years*365
+        eq = self.get_equity()['abs']
+        eq_pct = eq.pct_change(periods=days)
+
+        worst = round(eq_pct.min()*100,2) if not np.isnan(eq_pct.min()) else None
+        best = round(eq_pct.max()*100,2) if not np.isnan(eq_pct.max()) else None
+        return (worst, best)
+
     def get_cagr(self):
         equity = self.get_equity()['abs']
         t = self.get_duration()
@@ -87,8 +100,6 @@ class Strategy:
     def run(self):
         history = self.load_data()
         self.init_run(history)
-        #timer = MonthlyTimer(months=1, day=FirstFriday())
-        #timer.set_rebalancing_days(pd.to_datetime(self.start), pd.to_datetime(self.end))
         invest_range = history.copy()
         invest_range = invest_range.loc[self.start:self.end]
         self.history=history
@@ -100,7 +111,6 @@ class Strategy:
             self.invested.loc[i, (slice(None), 'current')] = 0
             self.invested.loc[i, (slice(None), 'value')] = self.quantity.loc[i, :].mul(history.loc[i].xs('close',  level=1)).tolist()
             
-
             # get dividends
             self.dividends.loc[i,:] = self.quantity.loc[i,:].mul(history.loc[i].xs('divCash',  level=1))
             # Add dividend to cash and update total cash
