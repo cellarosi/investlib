@@ -6,6 +6,10 @@ class FirstFriday:
     def is_valid(self, date):
         return date.day_of_week == 4 and date.day <= 7
 
+class FirstMonday:
+    def is_valid(self, date):
+        return date.day_of_week == 0 and date.day <= 7
+
 class EveryDay:
     def is_valid(self, date):
         return True

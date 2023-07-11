@@ -111,6 +111,7 @@ class Strategy:
             self.invested.loc[i, (slice(None), 'current')] = 0
             self.invested.loc[i, (slice(None), 'value')] = self.quantity.loc[i, :].mul(history.loc[i].xs('close',  level=1)).tolist()
             
+
             # get dividends
             self.dividends.loc[i,:] = self.quantity.loc[i,:].mul(history.loc[i].xs('divCash',  level=1))
             # Add dividend to cash and update total cash
