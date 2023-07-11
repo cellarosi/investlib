@@ -43,7 +43,7 @@ class Strategy:
         cols = pd.MultiIndex.from_product([self.assets, ['current', 'value']])
         self.invested = pd.DataFrame(index=invest_range, columns=cols).fillna(0)
         self.cash.loc[self.start, ['add','pre_close','post_close']] = self.initial_deposit
-    
+
     def get_assets_to_allocate(self, equities, date):
         assets = equities.columns.tolist() 
         for f in self.filters:
@@ -103,6 +103,7 @@ class Strategy:
         invest_range = history.copy()
         invest_range = invest_range.loc[self.start:self.end]
         self.history=history
+        
         for i, date in invest_range.iterrows():
             self.quantity.loc[i,:] = self.quantity.shift(1).fillna(0).loc[i,:]*history.loc[i].xs('splitFactor',  level=1)
             # CASO DI NON RIBILANCIAMENTO
@@ -111,7 +112,6 @@ class Strategy:
             self.invested.loc[i, (slice(None), 'current')] = 0
             self.invested.loc[i, (slice(None), 'value')] = self.quantity.loc[i, :].mul(history.loc[i].xs('close',  level=1)).tolist()
             
-
             # get dividends
             self.dividends.loc[i,:] = self.quantity.loc[i,:].mul(history.loc[i].xs('divCash',  level=1))
             # Add dividend to cash and update total cash
@@ -123,14 +123,12 @@ class Strategy:
                 self.allocation.loc[i] = self.allocation.shift(1).loc[i]
 
             if self.timer.is_rebalance_day(pd.to_datetime(i)) or i == self.start:
-                
                 equities = history.loc[:, (slice(None), 'close')].droplevel(1, axis=1)
                 assets = self.get_assets_to_allocate(equities,i)
                 self.allocation.loc[i] = self.allocation_class.rebalance(history.loc[:, (slice(None), 'close')].droplevel(1, axis=1), date=i, assets=assets)
                 total_capital = self.invested.loc[i, (slice(None), 'value')].sum() + self.cash.loc[i, 'pre_close']
                 capital_used = self.invested.loc[i, (slice(None), 'value')].droplevel(level=1)
                 capital_to_use = (total_capital*self.allocation.loc[i]-capital_used)
-
 
                 # In case we neet to remove money from asset, we round up to modify weight under the required percentage
                 # Otherwise, if we need to buy, we have to use rund under to buy che max intege quantity
@@ -142,5 +140,4 @@ class Strategy:
                 #self.quantity.loc[i, pos_asset] += (capital_to_use/current_close).apply(math.floor)
                 self.invested.loc[i, (slice(None), 'current')] = history.loc[i].xs('close',  level=1).mul(quantity).tolist()
                 self.invested.loc[i, (slice(None), 'value')] = self.quantity.loc[i,:].mul(history.loc[i].xs('close',  level=1)).tolist()
-
             self.cash.loc[i, 'post_close'] = self.cash.loc[i, 'pre_close']-self.invested.loc[i, (slice(None), 'current')].sum()

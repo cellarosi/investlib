@@ -3,27 +3,6 @@ import requests
 from datetime import datetime
 import pandas as pd
 
-def get_data(tickers, start,end):
-    tickers_level = dict()
-    tickers_df = pd.DataFrame()
-    for ticker in tickers:
-        path = 'data/Tiingo/{}.csv'.format(ticker)
-        initial_row = pd.DataFrame(index=[pd.to_datetime(start)-pd.tseries.offsets.MonthEnd()])
-        instruments = pd.read_csv(
-                path, 
-                index_col=['date'],        
-                parse_dates=True
-        )
-
-        instruments = instruments[start:end].resample('M').last().round(2)
-        instruments = pd.concat([instruments, initial_row]).sort_index().fillna(0)
-        instruments.loc[:,'close'] = instruments['close']*instruments['splitFactor'].astype(int).cummax()
-        instruments.iloc[0]['close'] = instruments.iloc[1]['open']
-        tickers_level[ticker] = instruments
-        
-        tickers_df= pd.concat(tickers_level, axis=1)
-        
-    return tickers_df
 
 class Tiingo:
     base_url = "https://api.tiingo.com/tiingo/daily/{}/prices?token={}&startDate={}"
@@ -85,8 +64,7 @@ class Tiingo:
                 buffer = open('{}/{}'.format(self.backup_path,buffer), 'r') 
         
         df = pd.read_csv(buffer, parse_dates=True, index_col=['date'],usecols=self.usecols)
-        #import ipdb;ipdb.set_trace()       
-        #df = df.resample('D').ffill() 
+        
         df = df.resample('D').asfreq()
         df[['open','close','splitFactor']] = df[['open','close','splitFactor']].ffill()
         df = df.fillna(0)
