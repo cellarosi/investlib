@@ -91,7 +91,8 @@ class StrategyTest(unittest.TestCase):
             'open': [10,11,12,13,16,17],
             'close': [10,11,12,13,16,17],
             'divCash': [0, 0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1, 1],
+            'adjClose':  [0,0,0,0,0,0]
         }
        
         datadf = pd.DataFrame(data).set_index('date')
@@ -104,7 +105,7 @@ class StrategyTest(unittest.TestCase):
             assets = tickers
         )
         history = s.load_data()        
-        self.assertEqual(history.shape, (8,4))
+        self.assertEqual(history.shape, (6,5))
         filedata.close()
 
     
@@ -114,7 +115,8 @@ class StrategyTest(unittest.TestCase):
             'open': [10,11,12,13,16,17],
             'close': [10,11,12,13,16,17],
             'divCash': [0, 0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1, 1],
+            'adjClose':  [0,0,0,0,0,0]
         }
        
         datadf = pd.DataFrame(data).set_index('date')
@@ -142,7 +144,8 @@ class StrategyTest(unittest.TestCase):
             'open': [10,11,12,13,16,17],
             'close': [10,11,12,13,16,17],
             'divCash': [0, 0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1, 1],
+            'adjClose':  [0,0,0,0,0,0]
         }
        
         datadf = pd.DataFrame(data).set_index('date')
@@ -157,21 +160,21 @@ class StrategyTest(unittest.TestCase):
         s.run()        
         filedata.close()
 
-        self.assertEqual(len(s.cash.index), 8)
+        self.assertEqual(len(s.cash.index), 6)
 
         s = Strategy(
             assets = tickers,
             start='2023-01-06'
         )
         s.run()   
-        self.assertEqual(len(s.cash.index), 7)
+        self.assertEqual(len(s.cash.index), 5)
         s = Strategy(
             assets = tickers,
             start='2023-01-05',
             end='2023-01-12'
         )
         s.run()   
-        self.assertEqual(len(s.cash.index), 8)
+        self.assertEqual(len(s.cash.index), 6)
         self.assertEqual(s.cash.columns.tolist(), ['add','pre_close','post_close'])
         self.assertEqual(s.quantity.columns.tolist(), [tk])
         self.assertEqual(s.invested.columns.tolist(), [(tk,'current'),(tk,'value'),])
@@ -184,7 +187,8 @@ class StrategyTest(unittest.TestCase):
             'open': [12,11,12,13,16,17],
             'close': [12,11,12,13,16,17],
             'divCash': [0, 0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1, 1],
+            'adjClose':  [0,0,0,0,0,0]
         }
        
         datadf = pd.DataFrame(data).set_index('date')
@@ -202,7 +206,7 @@ class StrategyTest(unittest.TestCase):
         
 
         self.assertEqual(s.invested.loc['2023-01-11', (tk,'value')], 141661)
-        self.assertEqual(s.cash['post_close'].tolist(), [4, 4,4,4,4,4,4,4])
+        self.assertEqual(s.cash['post_close'].tolist(), [4, 4,4,4,4,4])
 
   
     @mock.patch.dict(os.environ, {"tiingo_backup_path": "/tmp/testTiingo"})
@@ -213,7 +217,8 @@ class StrategyTest(unittest.TestCase):
             'open': [12,11,12,13,16,17],
             'close': [12,11,12,13,16,17],
             'divCash': [0, 0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1, 1],
+            'adjClose':  [0,0,0,0,0,0]
         }
        
         datadf = pd.DataFrame(data).set_index('date')
@@ -232,7 +237,7 @@ class StrategyTest(unittest.TestCase):
         
 
         self.assertEqual(s.invested.loc['2023-01-11', (tk,'value')], 99161)
-        self.assertEqual(s.cash['post_close'].tolist(), [30004, 30004,30004,30004,30004,30004,30004,30004])
+        self.assertEqual(s.cash['post_close'].tolist(), [30004, 30004,30004,30004,30004,30004])
 
 
 
@@ -244,7 +249,8 @@ class StrategyTest(unittest.TestCase):
             'open': [12,11,12,13,16,17],
             'close': [12,11,12,13,16,17],
             'divCash': [0, 0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1, 1],
+            'adjClose':  [0,0,0,0,0,0]
         }
        
         datadf = pd.DataFrame(data).set_index('date')
@@ -261,17 +267,18 @@ class StrategyTest(unittest.TestCase):
         s.run()   
 
         self.assertEqual(s.invested.loc['2023-01-11', (tk,'value')], 141661)
-        self.assertEqual(s.cash['post_close'].tolist(), [4,4,4,4,4,4,4,4]) 
+        self.assertEqual(s.cash['post_close'].tolist(), [4,4,4,4,4,4]) 
 
     @mock.patch.dict(os.environ, {"tiingo_backup_path": "/tmp/testTiingo"})
     @freeze_time("2023-03-15")
     def test_run_one_ticker_second_rebalance_with_dividends(self):
         data = {
-            'date': ['2023-01-04','2023-01-05','2023-01-06', '2023-01-09', '2023-01-10', '2023-02-10',  '2023-02-11', '2023-03-10'],
-            'open': [12,11,12,13,16,16,16,17],
-            'close': [12,11,12,13,16,16,16,17],
-            'divCash': [0, 0, 0, 1, 0, 1, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1, 1, 1, 1]
+            'date': ['2023-01-04','2023-01-05','2023-01-06', '2023-01-09', '2023-01-10', '2023-02-03', '2023-02-10',  '2023-02-11', '2023-03-03', '2023-03-10'],
+            'open': [12,11,12,13,16,16,16,16,16,17],
+            'close': [12,11,12,13,16,16,16,16,16,17],
+            'divCash': [0, 0, 0, 1, 0, 0,1, 0, 0,0],
+            'splitFactor': [1, 1, 1, 1, 1, 1, 1, 1, 1,1],
+            'adjClose':  [0,0,0,0,0,0,0,0,0,0]
         }
        
         datadf = pd.DataFrame(data).set_index('date')
@@ -305,7 +312,8 @@ class StrategyTest(unittest.TestCase):
             'open': [12,11,12,13,16],
             'close': [12,11,12,13,16],
             'divCash': [0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1],
+            'adjClose':  [0,0,0,0,0]
         }
        
         datadf = pd.DataFrame(data).set_index('date')
@@ -319,7 +327,8 @@ class StrategyTest(unittest.TestCase):
             'open': [12,11,12,13,16],
             'close': [12,11,12,13,16],
             'divCash': [0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1],
+            'adjClose':  [0,0,0,0,0]
         }
        
         datadf = pd.DataFrame(data).set_index('date')
@@ -351,7 +360,8 @@ class StrategyTest(unittest.TestCase):
             'open': [12,11,12,13,16],
             'close': [12,11,12,13,16],
             'divCash': [0, 1, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1],
+            'adjClose':  [0,0,0,0,0]
         }
        
         datadf = pd.DataFrame(data).set_index('date')
@@ -365,7 +375,8 @@ class StrategyTest(unittest.TestCase):
             'open': [12,11,12,13,16],
             'close': [10,11,12,13,16],
             'divCash': [0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1],
+            'adjClose':  [0,0,0,0,0]
         }
        
         datadf = pd.DataFrame(data).set_index('date')

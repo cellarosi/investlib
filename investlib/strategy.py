@@ -23,18 +23,20 @@ class Strategy:
     
     def init_run(self, history):
         if self.start:
-            self.start = max(history.index[0],self.start)
+            #self.start = max(history.index[0],self.start)
+            self.start = history.loc[self.start:].index[0]
+
         else:
             self.start = history.index[0]
         
         if self.end:
-            self.end = min(history.index[-1],self.end)
+            #self.end = min(history.index[-1],self.end)
+            self.end = history.loc[:self.end].index[-1]
         else:
             self.end = history.index[-1]
 
-        
         invest_range = history.loc[self.start:self.end].index
-
+        
         self.cash = pd.DataFrame(index=invest_range, columns=['add', 'pre_close', 'post_close']).fillna(0)
         self.quantity = pd.DataFrame(index=invest_range, columns=self.assets).fillna(0)
         self.dividends = pd.DataFrame(index=invest_range, columns=self.assets).fillna(0)
@@ -100,6 +102,7 @@ class Strategy:
     def run(self):
         history = self.load_data()
         self.init_run(history)
+       
         invest_range = history.copy()
         invest_range = invest_range.loc[self.start:self.end]
         self.history=history

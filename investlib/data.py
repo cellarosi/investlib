@@ -6,7 +6,7 @@ import pandas as pd
 
 class Tiingo:
     base_url = "https://api.tiingo.com/tiingo/daily/{}/prices?token={}&startDate={}"
-    usecols=['date','open','close','divCash','splitFactor']
+    usecols=['date','open','close','divCash','splitFactor', 'adjClose']
     
     def __init__(self, api_key,backup_path=None):
         self.api_key = api_key
@@ -65,9 +65,9 @@ class Tiingo:
         
         df = pd.read_csv(buffer, parse_dates=True, index_col=['date'],usecols=self.usecols)
         
-        df = df.resample('D').asfreq()
-        df[['open','close','splitFactor']] = df[['open','close','splitFactor']].ffill()
-        df = df.fillna(0)
+        #df = df.resample('D').asfreq()
+        #df[['open','close', 'adjClose','splitFactor']] = df[['open','close', 'adjClose','splitFactor']].ffill()
+        #df = df.fillna(0)
 
         df.index = pd.DatetimeIndex(df.index.date)
         

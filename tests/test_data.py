@@ -53,7 +53,8 @@ class TiingoTest(unittest.TestCase):
             'open': [150.50, 152.30, 153.40, 155.10, 154.90],
             'close': [149.50, 151.70, 152.80, 153.90, 155.50],
             'divCash': [0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1],
+            'adjClose': [1, 1, 1, 1, 1],
         }
         aapl = pd.DataFrame(data).set_index('date')
         temp_file = tempfile.NamedTemporaryFile(delete=False)
@@ -78,26 +79,27 @@ class TiingoTest(unittest.TestCase):
             'open': [150.50, 152.30, 153.40, 155.10, 154.90],
             'close': [149.50, 151.70, 152.80, 153.90, 155.50],
             'divCash': [0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1],
+            'adjClose': [1, 1, 1, 1, 1],
         }
         aapl = pd.DataFrame(data).set_index('date')
         temp_file = tempfile.NamedTemporaryFile(delete=False)
         aapl.to_csv(temp_file)
         temp_file.seek(0)
         data = self.tiingo.read(temp_file, '2023-01-02','2023-01-05')
-        self.assertEqual(data.shape,(4,4))
+        self.assertEqual(data.shape,(4,5))
         temp_file = open(temp_file.name)
         temp_file.seek(0)
         data = self.tiingo.read(temp_file, '2022-01-02','2023-01-05')
-        self.assertEqual(data.shape,(5,4))
+        self.assertEqual(data.shape,(5,5))
         temp_file = open(temp_file.name)
         temp_file.seek(0)
         data = self.tiingo.read(temp_file, '2022-01-02','2024-01-05')
-        self.assertEqual(data.shape,(5,4))
+        self.assertEqual(data.shape,(5,5))
         temp_file = open(temp_file.name)
         temp_file.seek(0)
         data = self.tiingo.read(temp_file, '2023-01-05','2024-01-05')
-        self.assertEqual(data.shape,(1,4))
+        self.assertEqual(data.shape,(1,5))
         temp_file.close()
         os.remove(temp_file.name)
 
@@ -107,7 +109,8 @@ class TiingoTest(unittest.TestCase):
             'open': [150.50, 152.30, 153.40, 155.10, 154.90],
             'close': [149.50, 151.70, 152.80, 153.90, 155.50],
             'divCash': [0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1],
+            'adjClose': [1, 1, 1, 1, 1],
         }
         aapl = pd.DataFrame(data).set_index('date')
         temp_file = tempfile.TemporaryFile()
@@ -124,7 +127,8 @@ class TiingoTest(unittest.TestCase):
             'open': [150.50, 152.30, 153.40, 155.10, 154.90],
             'close': [149.50, 151.70, 152.80, 153.90, 155.50],
             'divCash': [0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1],
+            'adjClose': [1, 1, 1, 1, 1],
         }
         aapl = pd.DataFrame(data).set_index('date')
         temp_file = tempfile.NamedTemporaryFile(delete=False)
@@ -132,28 +136,28 @@ class TiingoTest(unittest.TestCase):
         aapl.to_csv(temp_file)
         temp_file.seek(0)
         data = self.tiingo.read(temp_file)
-        self.assertEqual(data.shape,(5,4))
+        self.assertEqual(data.shape,(5,5))
         temp_file = open(temp_file.name)
         temp_file.seek(0)
         data = self.tiingo.read(temp_file, None,'2023-01-10')
-        self.assertEqual(data.shape,(5,4))
+        self.assertEqual(data.shape,(5,5))
         temp_file = open(temp_file.name)
         temp_file.seek(0)
         data = self.tiingo.read(temp_file, '2023-01-01',None)
-        self.assertEqual(data.shape,(5,4))
+        self.assertEqual(data.shape,(5,5))
         temp_file = open(temp_file.name)
         temp_file.seek(0)
         data = self.tiingo.read(temp_file, '2022-01-01',None)
-        self.assertEqual(data.shape,(5,4))
+        self.assertEqual(data.shape,(5,5))
 
         temp_file = open(temp_file.name)
         temp_file.seek(0)
         data = self.tiingo.read(temp_file, '2022-01-01','2022-02-01')
-        self.assertEqual(data.shape,(0,4))
+        self.assertEqual(data.shape,(0,5))
         temp_file = open(temp_file.name)
         temp_file.seek(0)
         data = self.tiingo.read(temp_file, '2023-12-01','2023-12-12')
-        self.assertEqual(data.shape,(0,4))
+        self.assertEqual(data.shape,(0,5))
     
         temp_file.close()
         os.remove(temp_file.name)
@@ -200,7 +204,7 @@ class TiingoTest(unittest.TestCase):
         self.assertTrue(('AAPL2','divCash') in cols)
         self.assertTrue(('AAPL1','splitFactor') in cols)
         self.assertTrue(('AAPL2','splitFactor') in cols)
-        self.assertEqual(aapl.shape, (7,8))
+        self.assertEqual(aapl.shape, (5,10))
         temp_dir.cleanup()
 
 
@@ -211,14 +215,16 @@ class TiingoTest(unittest.TestCase):
             'open': [10,11,12,13,16,17],
             'close': [10,11,12,13,16,17],
             'divCash': [0, 0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1, 1],
+            'adjClose': [1, 1, 1, 1, 1, 1],
         }
         data2 = {
             'date': ['2023-01-11', '2023-01-12', '2023-01-13', '2023-01-16', '2023-01-17'],
             'open': [11,12,13,16,17],
             'close': [11,12,13,16,17],
             'divCash': [0, 0, 0, 0, 0],
-            'splitFactor': [1, 1, 1, 1, 1]
+            'splitFactor': [1, 1, 1, 1, 1],
+            'adjClose': [1, 1, 1, 1, 1],
         }
         data1df = pd.DataFrame(data1).set_index('date')
         data2df = pd.DataFrame(data2).set_index('date')
@@ -247,7 +253,8 @@ class TiingoTest(unittest.TestCase):
             'open': [150.50, 152.30],
             'close': [149.50, 151.70],
             'divCash': [1, 1],
-            'splitFactor': [1, 1]
+            'splitFactor': [1, 1],
+            'adjClose': [1, 1]
         }
         aapl = pd.DataFrame(data).set_index('date')
         temp_file = tempfile.NamedTemporaryFile(delete=False)
@@ -255,14 +262,10 @@ class TiingoTest(unittest.TestCase):
         temp_file.seek(0)
         tk = os.path.basename(temp_file.name)
         data = self.tiingo.read(temp_file)
-        self.assertEqual(data.shape,(4,4))
+        self.assertEqual(data.shape,(2,5))
       
         self.assertEqual(data.loc['2023-05-05', 'divCash'],1)
         self.assertEqual(data.loc['2023-05-05', 'splitFactor'],1)
-        self.assertEqual(data.loc['2023-05-06', 'divCash'],0)
-        self.assertEqual(data.loc['2023-05-06', 'splitFactor'],1)
-        self.assertEqual(data.loc['2023-05-07', 'divCash'],0)
-        self.assertEqual(data.loc['2023-05-07', 'splitFactor'],1)
         self.assertEqual(data.loc['2023-05-08', 'divCash'],1)
         self.assertEqual(data.loc['2023-05-08', 'splitFactor'],1)
         
